@@ -1,0 +1,152 @@
+{% extends "library/base.html" %} {% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Publishers List</h4>
+            <button class="mdc-button mdc-button--raised mdc-ripple-upgraded btn-sm" style="background-image: linear-gradient(to top, #09203f 0%, #537895 100%);"><a href="{% url 'publisher-pdf'%}" style="color: white;">Download Pdf</a></button>
+            <select name="select-status" id="select-status">
+                <option value="All">All Publishers</option>
+                <option value="ban">Banned Publishers</option>
+                <option value="noban">UnBanned Publishers</option>
+
+            </select>
+            <!-- <div class="text-start">
+
+                <button class="mdc-button mdc-button--raised mdc-ripple-upgraded btn-sm" id="create_new" style="background-image: linear-gradient(to top, #09203f 0%, #537895 100%);"><i class="material-icons mdc-button__icon">add</i><span> Add New</span></button>
+            </div> -->
+            
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="10%">
+                    <col width="10%">
+                </colgroup>
+                <thead>
+                    <tr >
+                        
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">User name</th>
+                        <th class="text-center py-1">Total Books Published</th>
+                        <th class="text-center py-1">Total Readers</th>
+                        <th class="text-center py-1">Total Books Issued</th>
+                        <th class="text-center py-1">Books Reading</th>
+                        <th class="text-center py-1">Books Returned</th>
+                        <th class="text-center py-1">Total Fine</th>
+                        <th class="text-center py-1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in data %}
+                    <tr class="{% if d.status %} ban {%else%} noban {%endif%}">
+                        <td class="px-2 py-1 text-center">{{ d.id }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.username }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.totalbooks }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.totalreaders }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.total }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.pending }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.returned }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.fine }}</td>
+                        
+                        <td class="px-2 py-1 text-center">
+                            
+                            {% if d.status  %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded unban-user" type="button" data-id="{{ d.id }}" title="UnBan"  >
+                                UnBan
+                            </button>
+                            
+                            {% else %}
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded ban-user" type="button" data-id="{{ d.id }}" title="Ban" {% if d.fine > 900 or d.totalreaders >  0 %} disabled {%endif%} >
+                                Ban
+                             </button>
+                            
+                            {%endif%}
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $('#select-status').on('change', function(){
+        var value = $(this).val()
+        if(value=="ban"){
+        $('.noban').each(function(){
+            $(this).hide()
+        })
+        $('.ban').each(function(){
+            $(this).show()
+        })
+
+        }
+        else if(value=="noban"){
+            $('.ban').each(function(){
+                $(this).hide()
+            })
+            $('.noban').each(function(){
+                $(this).show()
+            })
+        }
+        else{
+            $('.ban').each(function(){
+                $(this).show()
+            })
+            $('.noban').each(function(){
+                $(this).show()
+            })
+        }
+       
+    })
+    $(function() {
+        
+        
+        $('.ban-user').click(function() {
+            _conf("Are you sure to Ban this Publisher?", "banReader", [$(this).attr('data-id')])
+        })
+        $('.unban-user').click(function() {
+            _conf("Are you sure to UnBan this Publisher?", "banReader", [$(this).attr('data-id')])
+        })
+    })
+
+    function banReader($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'ban-reader' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+</script>
+{% endblock ScriptBlock %}

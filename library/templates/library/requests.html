@@ -1,0 +1,130 @@
+{% extends "library/adminBase.html" %} {% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Requests List</h4>
+            <select name="select-status" id="select-status">
+                <option value="">select Filter</option>
+                <option value="approved">Approved</option>
+                <option value="notapproved">Not Approved</option>
+
+            </select>
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="20%">
+                    
+                    
+                </colgroup>
+                <thead>
+                    <tr>
+                        
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Staff_Id</th>
+                        
+                        <th class="text-center py-1">Registered Date</th>
+                        <th class="text-center py-1">Status</th>
+                        <th class="text-center py-1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for request_object in requests %}
+                    <tr class="{{request_object.status}}">
+                        <td class="px-2 py-1 text-center">{{request_object.id }}</td>
+                        <td class="px-2 py-1 text-center">{{request_object.user_id}}</td>
+                        
+                        <td class="px-2 py-1 text-center">{{ request_object.register_date }}</td>
+                        <td class="px-2 py-1 text-center">{{ request_object.status }}</td>
+                  
+                        <td class="px-2 py-1 text-center">
+                            
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--green mdc-ripple-upgraded edit-data" type="button" data-id="{{ request_object.pk }}" title="Approve" style="background-color: green;" {% if request_object.status != "notapproved" %} disabled {%endif%}>
+                                <i class="material-icons mdc-button__icon">done</i>
+                            </button>
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ request_object.pk }}" title="Cancel" {% if request_object.status != "approved" %} disabled {%endif%}>
+                                <i class="material-icons mdc-button__icon">close</i>
+                            </button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+    $(function() {
+        
+        $('.edit-data').click(function() {
+            _conf("Are you sure to approve this staff member?", "approveUser", [$(this).attr('data-id')])
+        })
+        $('.delete-data').click(function() {
+            _conf("Are you sure to disapprove this staff member?", "approveUser", [$(this).attr('data-id')])
+        })
+    })
+    var selected={'value':''}
+    $('#select-status').on('change', function(){
+        selected.value = $(this).val()
+        if(selected.value=="approved"){
+        $('.notapproved').each(function(){
+            $(this).hide()
+        })
+        $('.approved').each(function(){
+            $(this).show()
+        })
+
+        }
+        else{
+            $('.approved').each(function(){
+                $(this).hide()
+            })
+            $('.notapproved').each(function(){
+                $(this).show()
+            })
+        }
+       
+    })
+
+
+
+       
+
+    function approveUser($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'approveStaff' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+</script>
+{% endblock ScriptBlock %}

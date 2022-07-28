@@ -1,0 +1,205 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-10">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signup Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha3104-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <style>
+      *{
+        padding: 0;
+        margin: 0;
+        box-sizing: border-box;
+
+      }
+      body{
+        background-image: linear-gradient(to top, #09203f 0%, #537895 100%);
+        
+
+      }
+      .row{
+        background:white;
+        margin-top: 2%;
+        width: max-content;
+        padding-left: 5%;
+        padding-right: 5%;
+        
+      }
+      .btn1{
+        border: none;
+        outline: none;
+        height: 50px;
+        width: 100%;
+        background-color: black;
+        color: white;
+        padding-bottom: 2px;
+      }
+      .btn1:hover{
+        background-color: white;
+        color: black;
+        border: 2px solid #09203f;
+      }
+      .img-fluid{
+        height: 100%;
+      }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  </head>
+  <body>
+    <center>
+     <section class="Form ">
+      <div class="container">
+        <div class="row ">
+          <!-- <div class="col-lg-5   " >
+            <img src="https://cdni.iconscout.com/illustration/premium/thumb/user-account-sign-up-44109360-3723267.png" class="img-fluid mt-1 mb-5" alt="">
+          </div> -->
+          
+          <div class="col">
+            <center>
+            <h3 style="padding-top: 1%;">Signup</h3>
+            </center>
+            <hr>
+            <!-- <form action="" id="signup" method="POST">
+              {% csrf_token %} -->
+              <div class="form-row">
+                <div class="col-lg-12 ">
+                  <input type="text" placeholder="Userid" name="userid"  id="test-userid" class="form-control" required >
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <input type="email" placeholder="Email"  name="email" id="test-email" class="form-control" required >
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <input type="text" placeholder="User Name" name="username" id="test-uname" class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <input type="text" placeholder="Phone"  name="phone" id="test-phone_no" class="form-control" required>
+                  <span id="error" style="display: None;">Phone Number not valid</span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <input type="text" placeholder="Address"  name="address"  id="test-address"class="form-control" required>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <input type="password" placeholder="Password" name="password1"  id="test-password1" class="form-control" required>
+      
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-lg-12  pt-3">
+                  <select class="form-control" name="role" id="test-role" required>
+                    <option value="">Choose your role</option>
+                    <option value="reader">Reader</option>
+                    <option value="publisher">Publisher</option>
+                                      <option value="staff">Staff</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="col-lg-12 pt-3">
+                  <button type="submit" value="Register" class="btn1" id="register">Register</button>
+                </div>
+              </div>
+
+              <p style="padding-top: 2%;">Already have an account  <a href="{%  url 'login' %}">login here</a>
+              </p>
+            <!-- </form> -->
+          </div>
+        </center>
+         
+        </div>
+      </div>
+     </section> 
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha3104-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    <script>
+      var newUser = {'userid':null,  'email':null,'uname':null,'phone_no':null,'address':null,'role':null,'password':null}
+
+      $('#test-userid').on('keyup', function(){
+        newUser.userid = $(this).val()
+        console.log(newUser)
+
+    })
+    $('#test-email').on('keyup', function(){
+      newUser.email = $(this).val()
+        console.log(newUser)
+
+    })
+    $('#test-uname').on('keyup', function(){
+      newUser.uname = $(this).val()
+        console.log(newUser)
+
+    })
+   
+
+    $('#test-role').on('change', function(){
+        newUser.role = $(this).val()
+        console.log(newUser)
+    })
+
+    $('#test-address').on('keyup', function(){
+        newUser.address = $(this).val()
+        console.log(newUser)
+
+    })
+    $('#test-phone_no').on('keyup', function(){
+        $('#error').hide()
+        newUser.phone_no = $(this).val()
+        console.log(newUser)
+
+    })
+    $('#test-password1').on('keyup', function(){
+        newUser.password = $(this).val()
+        console.log(newUser)
+
+    })
+
+      $('#register').on('click', function(){
+        createUser()
+        
+      })
+
+
+      function createUser(){
+        var url ="/signup/"
+
+        $.ajax({
+            method:'POST',
+            url:url,
+            data:newUser,
+           
+            success:function(resp){
+              if(resp.status =='failed'){
+                alert(resp.msg)
+                $('#error').show()
+              }
+              else{
+                alert("User created successfully")
+                window.location.href='/login/'
+              }
+            },
+            
+        })
+      }
+      
+</script>
+    
+  </body>
+</html>

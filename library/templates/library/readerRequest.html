@@ -1,0 +1,89 @@
+<div class="container-fluid">
+    <form action="" id="book-form">
+        <input type="hidden" name="id" value="{% if book.pk %}{{book.pk}}{% endif %}">
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Title</label>
+            <input type="text" name="title" id="title" class="form-control form-control-sm rounded-0" value="{% if book.title %}{{book.title}}{% endif %}" {% if book.title %}disabled{% endif %} required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Isbn</label>
+            <input type="text" name="isbn" id="isbn" class="form-control form-control-sm rounded-0" value="{% if book.isbn %}{{book.isbn}}{% endif %}"{% if book.isbn %}disabled{% endif %} required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Return Date</label>
+            <input type="date" name="return_date" id="return-date" class="form-control form-control-sm rounded-0"  required>
+            <span id="validate-date" style="display: None;">Please select a date with a max duration of 30 days</span>
+        </div>
+        
+        
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#return-date').on('change', function(){
+            $('#validate-date').hide()
+            let date = $(this).val()
+            let today = new Date()
+           
+            today.setDate(today.getDate()+30)
+            let finald=today.toISOString().slice(0, 10)
+           
+            if(finald<date== true){
+                $('#validate-date').show()
+            }
+
+           
+            console.log(today.toISOString().slice(0, 10))
+            console.log(date)
+            console.log(finald<date)
+        })
+        $('#book-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "/saveRequest/",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>

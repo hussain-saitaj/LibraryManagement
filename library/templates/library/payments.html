@@ -1,0 +1,161 @@
+{% extends "library/readerBase.html" %} {% block pageContent %}
+{% load mathfilters%}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Payments</h4>
+            
+            Total Fine:{{user.fine}}
+            <!-- <div class="text-start">
+
+                <button class="mdc-button mdc-button--raised mdc-ripple-upgraded btn-sm" id="create_new" style="background-image: linear-gradient(to top, #09203f 0%, #537895 100%);"><i class="material-icons mdc-button__icon">add</i><span> Add New</span></button>
+            </div> -->
+            
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="15%">
+                    <col width="20%">
+                    <col width="15%">
+                    <col width="10%">
+                    <col width="10%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Title</th>
+                        <th class="text-center py-1">ISBN</th>
+                        <th class="text-center py-1">Date Returned</th>
+                        <th class="text-center py-1">Total Fine for the book</th>
+                        <th class="text-center py-1">Amount Paid </th>
+                        <th class="text-center py-1">Amount to be paid </th>
+                        <th class="text-center py-1">Action</th>
+                        <th class="text-center py-1">History</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for transaction in transactions %}
+                    <tr class="{% if d.returned %} return {%else%} noreturn {%endif%}">
+                        <td class="px-2 py-1 text-center">{{ transaction.id }}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.book_id.title }}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.book_id.isbn }}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.transaction_date }}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.total_amount }}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.amount_paid}}</td>
+                        <td class="px-2 py-1 text-start">{{ transaction.total_amount|sub:transaction.amount_paid }}</td>
+                        
+                        <td class="px-2 py-1 text-center">
+                            {% if transaction.amount_paid < transaction.total_amount %} 
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded pay-fine" type="button" data-id="{{ transaction.id }}" title="Pay Fine" {% if transaction.total_amount < transaction.amount_paid %} disabled{% endif%} >
+                               Pay
+                            </button>
+                            {%else%}
+                            Paid
+                            {% endif%}
+                            <!-- <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ d.book_id.pk }}" title="Delete">
+                                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                            </button> -->
+                        </td>
+                        <td class="px-2 py-1 text-center">
+                            
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded view-transaction" type="button" data-id="{{ transaction.id }}" title="Transaction History" >
+                               View Transactions
+                            </button>
+                            
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+
+    $('#select-status').on('change', function(){
+        var value = $(this).val()
+        if(value=="return"){
+        $('.noreturn').each(function(){
+            $(this).hide()
+        })
+        $('.return').each(function(){
+            $(this).show()
+        })
+
+        }
+        else if(value=="noreturn"){
+            $('.return').each(function(){
+                $(this).hide()
+            })
+            $('.noreturn').each(function(){
+                $(this).show()
+            })
+        }
+        else{
+            $('.return').each(function(){
+                $(this).show()
+            })
+            $('.noreturn').each(function(){
+                $(this).show()
+            })
+        }
+       
+    })
+
+
+    $(function() {
+        
+        $('.view-transaction').click(function() {
+            uni_modal("Transaction Details", "{% url 'view-transactions' %}?id="+ $(this).attr('data-id'), 'mid-large')
+        })
+        $('.pay-fine').click(function() {
+            
+
+        
+            _conf("Confirm Payment:<br>Enter Amount:<input type='number' id='pay'>", "PayFine", [$(this).attr('data-id')])
+        })
+      
+       
+    })
+    function PayFine($id) {
+        value=$('#pay').val()
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'pay-fine' %}",
+            method: "POST",
+            data: {
+                id: $id,
+                'pay':$('#pay').val()
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert("An error occured."+resp.error);
+                    end_loader();
+                }
+            }
+        })
+    }
+
+    
+</script>
+{% endblock ScriptBlock %}

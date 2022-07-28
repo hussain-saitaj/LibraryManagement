@@ -1,0 +1,52 @@
+{% load static %}
+<!-- partial:partials/_sidebar.html -->
+<aside class="mdc-drawer mdc-drawer--dismissible mdc-drawer--open" style="background-image: linear-gradient(to top, #09203f 0%, #537895 100%);">
+    <div class="mdc-drawer__header border-bottom border-light" >
+        <a href="{% url 'publisher' %}" class="brand-logo">
+            <h3 class="text-center text-light">ABC Limited</h3>
+        </a>
+    </div>
+    <div class="mdc-drawer__content" >
+        <div class="mdc-list-group">
+            <nav class="mdc-list mdc-drawer-menu">
+                <div class="mdc-list-item mdc-drawer-item">
+                    <a class="mdc-drawer-link" href="{% url 'publisher' %}">
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">home</i> Home
+                    </a>
+                </div>
+                <div class="mdc-list-item mdc-drawer-item">
+                    <a class="mdc-drawer-link" href="{% url 'publisher-books' %}">
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">book</i> My Books
+                    </a>
+                </div>
+                <div class="mdc-list-item mdc-drawer-item">
+                    <a class="mdc-drawer-link" href="{% url 'other-books' %}">
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">group</i> Other Books
+                    </a>
+                </div>
+                
+                <div class="mdc-list-item mdc-drawer-item">
+                    <a class="mdc-drawer-link" href="{% url 'publisher-issued-books' %}">
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">group</i> Issued Books
+                    </a>
+                </div>
+                <div class="mdc-list-item mdc-drawer-item">
+                    <a class="mdc-drawer-link" href="{% url 'reader-payments' %}">
+                        <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">group</i> Payments
+                    </a>
+                </div>
+            </nav>
+        </div>
+    </div>
+</aside>
+<!-- <script>
+    $(function() {
+        $("li").click(function() {
+           // remove classes from all
+           $("li").removeClass("active");
+           // add class to the one we clicked
+           $(this).addClass("active");
+        });
+     });
+</script> -->
+<!-- partial -->

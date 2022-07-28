@@ -1,0 +1,167 @@
+{% extends "library/publisherBase.html" %} {% block pageContent %}
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card py-2">
+        <div class="d-flex justify-content-between align-items-center">
+            <h4 class="card-title mb-0">Issued Books List</h4>
+            
+            <select name="select-status" id="select-status">
+                <option value="All">All Issued Books</option>
+                <option value="return">Returned Books</option>
+                <option value="noreturn">Books to Return</option>
+
+            </select>
+            <!-- <div class="text-start">
+
+                <button class="mdc-button mdc-button--raised mdc-ripple-upgraded btn-sm" id="create_new" style="background-image: linear-gradient(to top, #09203f 0%, #537895 100%);"><i class="material-icons mdc-button__icon">add</i><span> Add New</span></button>
+            </div> -->
+            
+        </div>
+    </div>
+</div>
+<div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
+    <div class="mdc-card">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered">
+                <colgroup>
+                    <col width="5%">
+                    <col width="15%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="20%">
+                    <col width="10%">
+                    <col width="10%">
+                </colgroup>
+                <thead>
+                    <tr>
+                        
+                        <th class="text-center py-1">#</th>
+                        <th class="text-center py-1">Title</th>
+                        <th class="text-center py-1">ISBN</th>
+                        <th class="text-center py-1">Price</th>
+                        <th class="text-center py-1">Edition</th>
+                        <th class="text-center py-1">Category</th>
+                        <th class="text-center py-1">Publisher_id</th>
+                        <th class="text-center py-1">Details</th>
+                        <th class="text-center py-1">Date to Return</th>
+                        <th class="text-center py-1">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in data %}
+                    <tr class="{% if d.returned %} return {%else%} noreturn {%endif%}">
+                        <td class="px-2 py-1 text-center">{{ d.book_id }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.title }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.isbn }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.price }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.edition }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.category }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.publisher_id }}</td>
+                        <td class="px-2 py-1 text-start">{{ d.book_id.details }}</td>
+                        <td class="px-2 py-1 text-start" id="return-date{{d.id}}">{{ d.return_date }}</td>
+                        <td class="px-2 py-1 text-center">
+                           
+                            <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--light mdc-ripple-upgraded return-book" type="button" data-id="{{ d.id }}" title="Return Book" {% if d.returned %} disabled {%endif%}>
+                               Return
+                            </button>
+                            
+                            <!-- <button class="mdc-button mdc-button--raised p-1 icon-button filled-button--danger mdc-ripple-upgraded delete-data" type="button" data-id="{{ d.book_id.pk }}" title="Delete">
+                                <i class="material-icons mdc-button__icon">deleteoutline</i>
+                            </button> -->
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock pageContent %} {% block ScriptBlock %}
+<script>
+
+    $('#select-status').on('change', function(){
+        var value = $(this).val()
+        if(value=="return"){
+        $('.noreturn').each(function(){
+            $(this).hide()
+        })
+        $('.return').each(function(){
+            $(this).show()
+        })
+
+        }
+        else if(value=="noreturn"){
+            $('.return').each(function(){
+                $(this).hide()
+            })
+            $('.noreturn').each(function(){
+                $(this).show()
+            })
+        }
+        else{
+            $('.return').each(function(){
+                $(this).show()
+            })
+            $('.noreturn').each(function(){
+                $(this).show()
+            })
+        }
+       
+    })
+
+
+    $(function() {
+        
+        
+        $('.return-book').click(function() {
+            let id='#return-date'+$(this).attr('data-id')
+            console.log(id)
+
+            let date = $(id).text()
+            let date1=new Date(date)
+            date1.setDate(date1.getDate()+1)
+            let finaldate=new Date(date1).toISOString().slice(0, 10)
+            let today = new Date().toISOString().slice(0, 10)
+           
+            
+            console.log(finaldate)
+            console.log(today)
+           let val=0
+            if(today>finaldate== true){
+                val=1000
+            }
+            _conf("Are you sure to return  this book?<br>Fine:"+val, "returnBook", [$(this).attr('data-id')])
+        })
+      
+       
+    })
+    function returnBook($id) {
+        start_loader();
+        $.ajax({
+            headers: {
+                "X-CSRFToken": '{{csrf_token}}'
+            },
+            url: "{% url 'return-book' %}",
+            method: "POST",
+            data: {
+                id: $id
+            },
+            dataType: "json",
+            error: err => {
+                console.log(err)
+                alert_toast("An error occured.", 'error');
+                end_loader();
+            },
+            success: function(resp) {
+                if (typeof resp == 'object' && resp.status == 'success') {
+                    location.reload();
+                } else {
+                    alert_toast("An error occured.", 'error');
+                    end_loader();
+                }
+            }
+        })
+    }
+
+    
+</script>
+{% endblock ScriptBlock %}

@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-10">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Signin Page</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha3104-0evHe/X+R7YkIZDRvuzKMRqM+OrBnVFBL6DOitfPri4tjfHxaWutUpFmBp4vmVor" crossorigin="anonymous">
+    <style>
+      
+      body{background: #000}
+      .card{border: none;height: 320px}
+     
+    </style>
+    <script src="https://code.jquery.com/jquery-3.4.1.js"></script>
+  </head>
+  <body >
+    <div class="container mt-5">
+      <div class="row d-flex justify-content-center">
+          <div class="col-md-6">
+              <div class="card px-5 py-5" id="form1">
+                  <div class="form-data" v-if="!submitted">
+                      <div class="forms-inputs mb-4"> <span>Username</span> <input autocomplete="off" type="text" v-model="email" v-bind:class="{'form-control':true, 'is-invalid' : !validEmail(email) && emailBlured}" v-on:blur="emailBlured = true">
+                          <div class="invalid-feedback">A valid email is required!</div>
+                      </div>
+                      <div class="forms-inputs mb-4"> <span>Password</span> <input autocomplete="off" type="password" v-model="password" v-bind:class="{'form-control':true, 'is-invalid' : !validPassword(password) && passwordBlured}" v-on:blur="passwordBlured = true">
+                          <div class="invalid-feedback">Password must be 8 character!</div>
+                      </div>
+                      <div class="mb-3"> <button v-on:click.stop.prevent="submit" class="btn btn-dark w-100">Login</button> </div>
+                  </div>
+                  <!-- <div class="success-data" v-else>
+                      <div class="text-center d-flex flex-column"> <i class='bx bxs-badge-check'></i> <span class="text-center fs-1">You have been logged in <br> Successfully</span> </div>
+                  </div> -->
+              </div>
+          </div>
+      </div>
+  </div>
+
+
+
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0-beta1/dist/js/bootstrap.bundle.min.js" integrity="sha3104-pprn3073KE6tl6bjs2QrFaJGz5/SUsLqktiwsUTF55Jfv3qYSDhgCecCxMW52nD2" crossorigin="anonymous"></script>
+
+    <script>
+      var newUser = {'userid':null, 'password':null}
+
+      $('#test-userid').on('keyup', function(){
+        newUser.userid = $(this).val()
+        console.log(newUser)
+
+    })
+    
+    $('#test-password1').on('keyup', function(){
+        newUser.password = $(this).val()
+        console.log(newUser)
+
+    })
+
+      $('#login').on('click', function(){
+        createUser()
+      })
+
+
+      function createUser(){
+        var url ="/signin/"
+
+        $.ajax({
+            method:'POST',
+            url:url,
+            data:newUser,
+           
+            success:function(resp){
+              if(resp.status =='failed'){
+                alert(resp.msg)
+              }
+              
+            },
+            
+        })
+      }
+      
+</script>
+    
+  </body>
+</html>

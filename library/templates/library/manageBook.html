@@ -1,0 +1,100 @@
+<div class="container-fluid">
+    <form action="" id="book-form">
+        <input type="hidden" name="id" value="{% if book.pk %}{{book.pk}}{% endif %}">
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Title</label>
+            <input type="text" name="title" id="title" class="form-control form-control-sm rounded-0" value="{% if book.title %}{{book.title}}{% endif %}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Isbn</label>
+            <input type="text" name="isbn" id="isbn" class="form-control form-control-sm rounded-0" value="{% if book.isbn %}{{book.isbn}}{% endif %}" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Price</label>
+            <input type="text" name="price" id="price" class="form-control form-control-sm rounded-0" value="{% if book.price %}{{book.price}}{% endif %}" required>
+        </div>
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Edition</label>
+            <input type="text" name="edition" id="edition" class="form-control form-control-sm rounded-0" value="{% if book.edition %}{{book.edition}}{% endif %}" required>
+        </div>
+
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Category</label>
+            <select class="form-control" name="category" id="category">
+                <option value="story">Story</option>
+                <option value="novel">Novel</option>
+                <option value="general">General</option>
+            </select>
+        </div>
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Publisher_id</label>
+            <select class="form-control" name="publisher_id" id="publisher_id" {% if book.publisher_id %}disabled{% endif %} required>
+                {% for publisher in publishers %}
+                <option value="{{publisher.user.username}}">{{publisher.user.username}}</option>
+                {% endfor %}
+            </select>
+            <!-- <input type="text" name="publisher_id" id="publisher_id" class="form-control form-control-sm rounded-0" value="{% if book.publisher_id %}{{book.publisher_id}}{% endif %}" required {% if book.publisher_id %}disabled{% endif %}> -->
+        </div>
+        <div class="form-group mb-3">
+            <label for="description" class="control-label">details</label>
+            <textarea rows="3" name="details" id="details" class="form-control form-control-sm rounded-0" required>{% if book.details %}{{book.details}}{% endif %}</textarea>
+        </div>
+        <div class="form-group mb-3">
+            <label for="name" class="control-label">Quantity</label>
+            <input type="number" name="quantity" id="quantity" class="form-control form-control-sm rounded-0" value="{% if book.quantity %}{{book.quantity}}{% endif %}" required>
+        </div>
+        
+    </form>
+</div>
+<script>
+    $(function() {
+        $('#book-form').submit(function(e) {
+            e.preventDefault();
+            var _this = $(this)
+            $('.err-msg').remove();
+            var el = $('<div>')
+            el.addClass("alert alert-danger err-msg")
+            el.hide()
+            if (_this[0].checkValidity() == false) {
+                _this[0].reportValidity();
+                return false;
+            }
+            start_loader();
+            $.ajax({
+                headers: {
+                    "X-CSRFToken": '{{csrf_token}}'
+                },
+                url: "/saveBook/",
+                data: new FormData($(this)[0]),
+                cache: false,
+                contentType: false,
+                processData: false,
+                method: 'POST',
+                type: 'POST',
+                dataType: 'json',
+                error: err => {
+                    console.log(err)
+                    alert_toast("An error occured", 'error');
+                    end_loader();
+                },
+                success: function(resp) {
+                    if (typeof resp == 'object' && resp.status == 'success') {
+                        el.removeClass("alert alert-danger err-msg")
+                        location.reload()
+                    } else if (resp.status == 'failed' && !!resp.msg) {
+                        el.text(resp.msg)
+                    } else {
+                        el.text("An error occured", 'error');
+                        end_loader();
+                        console.err(resp)
+                    }
+                    _this.prepend(el)
+                    el.show('slow')
+                    $("html, body, .modal").scrollTop(0);
+                    end_loader()
+                }
+            })
+        })
+    })
+</script>
